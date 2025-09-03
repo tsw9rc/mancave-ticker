@@ -1,0 +1,184 @@
+
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ManCave Sports • Pro (Dark)</title>
+<style>
+:root{
+  --bg:#0b0f14; --panel:#0f141b; --glass:rgba(18,24,32,.55); --fg:#e6ebf1; --muted:#9aa4af;
+  --accent:#1f6feb; --accent2:#22c55e; --border:rgba(255,255,255,.08);
+  --radius:16px; --radius-lg:20px; --shadow:0 12px 30px rgba(0,0,0,.35);
+  --tickerH:68px;
+}
+*{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+a{color:inherit;text-decoration:none}
+/* Top nav */
+.nav{height:56px;background:#0c1218;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 16px;gap:8px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.3px}
+.brand .dot{width:10px;height:10px;border-radius:999px;background:var(--accent)}
+.tabs{display:flex;gap:6px;align-items:center}
+.tab{padding:10px 14px;border-radius:10px;color:var(--muted);font-weight:700}
+.tab.active{background:rgba(255,255,255,.06);color:var(--fg)}
+.time{color:var(--muted);font-size:13px}
+/* Layout */
+.main{min-height:calc(100% - var(--tickerH) - 56px);padding:18px;display:none}
+.main.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(320px,1fr));gap:12px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+/* Games row */
+.game{display:grid;grid-template-columns:1fr 140px 1fr;align-items:center;gap:6px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.game:last-child{border-bottom:none}
+.team{display:flex;align-items:center;gap:10px;font-weight:800}
+.badge{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid var(--border);overflow:hidden}
+.badge img{width:100%;height:100%;object-fit:contain}
+.badge span{font-size:12px;color:#fff;opacity:.9}
+.meta{text-align:center;color:var(--muted);font-size:13px;line-height:1.2}
+/* Standings table */
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:10px 12px;border-bottom:1px solid var(--border)}
+.table th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+.table tr:last-child td{border-bottom:none}
+.teamcell{display:flex;align-items:center;gap:10px;font-weight:800}
+/* Rankings list */
+.rankRow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.rankNum{width:28px;text-align:right;color:var(--muted)}
+/* Bottom ticker */
+.ticker{position:fixed;left:0;right:0;bottom:0;height:var(--tickerH);display:flex;align-items:center;background:var(--glass);backdrop-filter:blur(12px);border-top:1px solid var(--border);overflow:hidden}
+.track{display:flex;align-items:center;gap:22px;white-space:nowrap;will-change:transform;padding:0 10px}
+.item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03))}
+.logoSm{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.08);display:grid;place-items:center;overflow:hidden}
+.logoSm img{width:100%;height:100%;object-fit:contain}
+.logoSm span{font-size:11px}
+.iTitle{font-weight:800} .iMeta{color:var(--muted);font-size:13px}
+@keyframes scroll{from{transform:translateX(0)} to{transform:translateX(-50%)}} .scrolling{animation:scroll var(--speed) linear infinite}
+.notice{color:#bbb;font-size:13px;padding:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="brand"><div class="dot"></div> ManCave Sports</div>
+  <div class="tabs">
+    <a class="tab active" data-tab="games">Games</a>
+    <a class="tab" data-tab="standings">Standings</a>
+    <a class="tab" data-tab="rankings">Rankings</a>
+  </div>
+  <div class="time" id="clock">--:--</div>
+</div>
+
+<!-- GAMES -->
+<div id="games" class="main active">
+  <div class="panel">
+    <div id="gamesList">
+      <div class="notice">Loading schedule…</div>
+    </div>
+  </div>
+</div>
+
+<!-- STANDINGS -->
+<div id="standings" class="main">
+  <div class="panel" style="padding:10px 0">
+    <table class="table" id="standingsTbl">
+      <thead><tr><th>Team</th><th>W-L</th><th>PCT</th><th>PF</th><th>PA</th><th>Rank</th></tr></thead>
+      <tbody><tr><td colspan="6" class="notice">Loading standings…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- RANKINGS -->
+<div id="rankings" class="main">
+  <div class="panel">
+    <div id="ranksWrap">
+      <div class="notice">Loading rankings…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom ticker -->
+<div class="ticker"><div id="lane" class="track"></div></div>
+
+<script>
+const CSV_SCHEDULES = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=880614099&single=true&output=csv';
+const CSV_PUBLISHED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=1511185785&single=true&output=csv';
+const LOOP_SEC = 22; // ticker loop target
+// Simple CSV parser
+function parseCSV(text){const rows=[];let i=0,field="",row=[],inQ=false;while(i<text.length){const c=text[i];
+ if(inQ){if(c=='"'){if(text[i+1]=='"'){field+='"';i++;} else inQ=false;} else field+=c;}
+ else{if(c=='"') inQ=true; else if(c==','){row.push(field);field="";} else if(c=='\n'||c=='\r'){if(c=='\r'&&text[i+1]=='\n') i++; row.push(field); field=""; if(row.length) rows.push(row); row=[];} else field+=c;} i++;}
+ if(field.length||row.length){row.push(field); rows.push(row);} return rows;}
+function idxMap(head){const m={}; head.forEach((h,i)=>m[h.trim()]=i); return m;}
+function fmtDateOnly(s){if(!s) return ""; if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; const d=new Date(s); if(isNaN(d)) return s; const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${da}`; }
+function el(html){const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild;}
+function logoHTML(url, fallbackText){if(url) return `<img src="${url}" alt="">`; return `<span>${fallbackText}</span>`;}
+
+async function fetchCSV(url){const res=await fetch(url,{cache:'no-store'}); return parseCSV(await res.text());}
+
+function buildGames(rows){const head=rows[0]||[], idx=idxMap(head); const L=document.getElementById('gamesList'); L.innerHTML='';
+ for(let r=1;r<rows.length;r++){const row=rows[r]; if(!row[idx.Team]) continue;
+  const t=row[idx.Team]||'', opp=row[idx.Opponent]||'', date=fmtDateOnly(row[idx.GameDate]||row[idx.Date]||'');
+  const ha=row[idx.HomeAway]||'', res=row[idx.Result]||''; const logo=row[idx.Logo]||'';
+  const cell=`<div class="game">
+    <div class="team"><div class="badge">${logoHTML(logo, t[0]||'?')}</div><div>${t}</div></div>
+    <div class="meta">${date}<br>${ha||''} ${res?('• '+res):''}</div>
+    <div class="team" style="justify-self:end"><div>${opp}</div></div>
+  </div>`;
+  L.appendChild(el(cell));
+ } if(!L.children.length) L.innerHTML='<div class="notice">No games found.</div>'; }
+
+function buildStandings(rows){const head=rows[0]||[], idx=idxMap(head); const tb=document.querySelector('#standingsTbl tbody'); tb.innerHTML='';
+ for(let r=1;r<rows.length;r++){const row=rows[r]; if(!row[idx.Team]) continue;
+  const t=row[idx.Team], wl=row[idx.Overall_WL]||row[idx.Region_WL]||'', pct=row[idx.Overall_PCT]||'', pf=row[idx.PF]||'', pa=row[idx.PA]||'', rk=row[idx.Rank]||'', logo=row[idx.Logo]||'';
+  tb.appendChild(el(`<tr>
+    <td><div class="teamcell"><div class="badge">${logoHTML(logo, t[0]||'?')}</div>${t}</div></td>
+    <td>${wl}</td><td>${pct}</td><td>${pf}</td><td>${pa}</td><td>${rk}</td>
+  </tr>`));
+ } if(!tb.children.length) tb.innerHTML='<tr><td colspan="6" class="notice">No data.</td></tr>'; }
+
+function buildRankings(rows){const head=rows[0]||[], idx=idxMap(head); const wrap=document.getElementById('ranksWrap'); wrap.innerHTML='';
+  const groups=['JAMES_RIVER','DIV2A','RICHMOND','VIRGINIA','NATIONAL']; // sources inside Published
+  for(const g of groups){const list=rows.slice(1).filter(r=> (r[idx.Rank_Source]||'').toUpperCase()===g); if(!list.length) continue;
+    const section=el('<div class="panel" style="margin:16px;border:none;background:transparent"></div>');
+    const title=el(`<div style="padding:6px 12px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">${g.replace('_',' ')}</div>`);
+    section.appendChild(title);
+    for(const row of list){const t=row[idx.Team], rk=row[idx.Rank]||'', arrow=row[idx.Arrow]||'', logo=row[idx.Logo]||'';
+      section.appendChild(el(`<div class="rankRow"><div class="rankNum">${rk||'-'}</div><div class="badge">${logoHTML(logo, t[0]||'?')}</div><div class="team" style="font-weight:800">${t}</div><div style="margin-left:auto;color:var(--muted)">${arrow}</div></div>`));
+    }
+    wrap.appendChild(section);
+  }
+  if(!wrap.children.length) wrap.innerHTML='<div class="notice">No rankings available.</div>';
+}
+
+function buildTicker(rows){const head=rows[0]||[], idx=idxMap(head); const lane=document.getElementById('lane'); lane.innerHTML='';
+  const items = rows.slice(1).filter(r=>r[idx.Team]).map(row=>({
+    team: row[idx.Team], logo: row[idx.Logo]||'', wl: row[idx.Overall_WL]||'', pct: row[idx.Overall_PCT]||'', pf: row[idx.PF]||'', pa: row[idx.PA]||'', tick: row[idx.Ticker]||'' }));
+  const wrap=document.createElement('div'); wrap.style.display='flex'; wrap.style.alignItems='center'; wrap.style.gap='22px';
+  const doubled=items.concat(items);
+  for(const it of doubled){const card=el(`<div class="item">
+     <div class="logoSm">${logoHTML(it.logo, it.team[0]||'?')}</div>
+     <div><div class="iTitle">${it.team}</div><div class="iMeta">${it.tick} • ${it.wl}${it.pct?(' ('+it.pct+')'):''} • PF ${it.pf} / PA ${it.pa}</div></div>
+  </div>`); wrap.appendChild(card);}
+  lane.appendChild(wrap);
+  const total = wrap.scrollWidth/2; const pxPerSec = Math.max(110, total/LOOP_SEC); const duration = total/pxPerSec;
+  document.documentElement.style.setProperty('--speed', (duration*2)+'s');
+  lane.classList.remove('scrolling'); void lane.offsetWidth; lane.classList.add('scrolling');
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  const id=t.getAttribute('data-tab'); document.querySelectorAll('.main').forEach(m=>m.classList.remove('active')); document.getElementById(id).classList.add('active');}));
+
+// Clock
+function tickClock(){const d=new Date(); const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0'); document.getElementById('clock').textContent = hh+':'+mm;}
+setInterval(tickClock, 1000); tickClock();
+
+async function refreshAll(){
+  try {
+    const [sched, pub] = await Promise.all([fetchCSV(CSV_SCHEDULES), fetchCSV(CSV_PUBLISHED)]);
+    buildGames(sched);
+    buildStandings(pub);
+    buildRankings(pub);
+    buildTicker(pub);
+  } catch(e) { console.error(e); }
+}
+refreshAll(); setInterval(refreshAll, 300000);
+</script>
+</body></html>
