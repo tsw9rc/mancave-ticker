@@ -1,0 +1,73 @@
+    <!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>ManCave Ticker — Cards (schedules)</title>
+    <style>
+    :root{--bg:#000;--fg:#fff;--cardW:min(900px,92vw);--cardH:min(520px,68vh)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px}
+    .topbar{position:fixed;top:0;left:0;right:0;height:36px;background:#111;border-bottom:1px solid #222;color:#bbb;font-size:12px;display:flex;align-items:center;justify-content:space-between;padding:0 10px}
+    .card{width:var(--cardW);height:var(--cardH);border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.45);display:flex}
+    .left{width:36%;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+    .right{flex:1;display:flex;flex-direction:column;gap:10px;padding:22px;background:rgba(0,0,0,.25)}
+    .logo{width:54%;max-width:260px;aspect-ratio:1/1;object-fit:contain;background:rgba(255,255,255,.08);border-radius:16px}
+    .team{font-size:34px;font-weight:900;line-height:1.05;text-align:center}
+    .line{font-size:22px;line-height:1.25}.muted{opacity:.9;font-size:18px}
+    .controls{display:flex;gap:10px}button{background:#1f6feb;color:#fff;border:none;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer}button:active{transform:translateY(1px)}
+    </style></head><body>
+    <div class="topbar"><span>ManCave Ticker — Cards (schedules)</span><span id="status">Loading…</span></div>
+    <div class="card" id="card"><div class="left" id="left"></div><div class="right" id="right"></div></div>
+    <div class="controls"><button onclick="prev()">Prev</button><button onclick="next()">Next</button></div>
+    <script>
+    const CONFIG = {
+      CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=880614099&single=true&output=csv',
+      MODE: 'schedules',
+      REFRESH_MS: 300000,
+      ROTATE_MS: 8000,
+    };
+    let items=[], ptr=0; const statusEl=document.getElementById('status');
+    async function loadCSV(){ statusEl.textContent="Loading…"; const res=await fetch(CONFIG.CSV_URL,{cache:"no-store"}); const text=await res.text(); return parseCSV(text); }
+    function idxMap(header){ const m={}; header.forEach((h,i)=>m[h.trim()]=i); return m; }
+    function buildItems(rows){
+      if (!rows.length) return []; const header=rows[0], idx=idxMap(header); const list=[];
+      for (let r=1;r<rows.length;r++){ const row=rows[r]; if (!row || !row[idx.Team]) continue;
+        const team=row[idx.Team]; const primary=(row[idx.PrimaryHex]||"#222").trim(); const secondary=(row[idx.SecondaryHex]||"#333").trim(); const logo=row[idx.Logo]||""; const fg=contrastColor(primary);
+        if (CONFIG.MODE==="published"){ const wl=row[idx.Overall_WL]||""; const pct=row[idx.Overall_PCT]||""; const rank=row[idx.Rank]||""; const arrow=row[idx.Arrow]||""; const pf=row[idx.PF]||""; const pa=row[idx.PA]||""; const ticker=row[idx.Ticker]||"";
+          list.push({team,primary,secondary,logo,fg,lines:[`${ticker}${rank?` • Rank ${rank} ${arrow}`:''}`,`${wl}${pct?` • ${pct}`:''}`,`PF ${pf} • PA ${pa}`]}); }
+        else { const gd=fmtDate(row[idx.GameDate]||""); const ha=row[idx.HomeAway]||""; const opp=row[idx.Opponent]||""; const res=row[idx.Result]||"";
+          list.push({team,primary,secondary,logo,fg,lines:[`${gd} ${ha?`(${ha})`:''}`,`vs ${opp}`,`${res}`]}); }
+      } return list;
+    }
+    function renderCard(){ if (!items.length) return; const it=items[ptr%items.length]; const left=document.getElementById('left'); const right=document.getElementById('right');
+      left.innerHTML=`${it.logo?`<img class="logo" src="${it.logo}" alt="">`:''}<div class="team" style="color:${contrastColor('#000000')}">${it.team}</div>`;
+      left.style.background=`linear-gradient(160deg, ${it.primary} 0%, ${it.secondary} 100%)`;
+      right.innerHTML=it.lines.map((ln,i)=>`<div class="${i===0?'line':'muted'}">${ln}</div>`).join('');
+    }
+    async function refresh(){ try{ const rows=await loadCSV(); items=buildItems(rows); ptr=0; renderCard(); statusEl.textContent=`Updated • ${new Date().toLocaleTimeString()}`; } catch(e){ console.error(e); statusEl.textContent="Load error"; } }
+    function next(){ ptr=(ptr+1)%(items.length||1); renderCard(); } function prev(){ ptr=(ptr-1+(items.length||1))%(items.length||1); renderCard(); }
+    setInterval(()=>next(), CONFIG.ROTATE_MS); setInterval(refresh, CONFIG.REFRESH_MS); refresh();
+    </script>
+    <script>
+function parseCSV(text) {
+  const rows = []; let i = 0, field = '', row = [], inQuotes = false;
+  while (i < text.length) { const c = text[i];
+    if (inQuotes) { if (c === '"') { if (text[i+1] === '"') { field += '"'; i++; } else { inQuotes = false; } } else { field += c; } }
+    else { if (c === '"') inQuotes = true; else if (c === ',') { row.push(field); field=''; }
+           else if (c === '\n' || c === '\r') { if (c === '\r' && text[i+1] === '\n') i++; row.push(field); field=''; if (row.length) rows.push(row); row = []; }
+           else { field += c; } }
+    i++; }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+function contrastColor(hex) {
+  const h = (hex||'').replace('#',''); if (h.length !== 6) return '#FFFFFF';
+  const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+  const yiq = ((r*299)+(g*587)+(b*114))/1000; return yiq >= 128 ? '#000000' : '#FFFFFF';
+}
+function fmtDate(iso) {
+  if (!iso) return ''; if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+  const d = new Date(iso); if (isNaN(d)) return iso;
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${da}`;
+}
+function idxMap(header) { const m = {}; header.forEach((h,i)=> m[h.trim()] = i); return m; }
+</script>
+
+    </body></html>
