@@ -2,61 +2,61 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>ManCave Sports — Team Schedule (Pro)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ManCave Sports — Team (Pro v2)</title>
 <style>
 :root{
   --bg:#0a0f14; --panel:#0f141b; --card:#121a22; --fg:#e9eef5; --muted:#9fb0bf;
-  --border:rgba(255,255,255,.10); --accent:#7c5cff;
-  --good:#22c55e; --bad:#ef4444; --chip:#1a2430; --chipB:#223044;
-  --shadow:0 18px 50px rgba(0,0,0,.45);
+  --border:rgba(255,255,255,.10); --shadow:0 18px 50px rgba(0,0,0,.45);
+  --good:#22c55e; --bad:#ef4444; --neu:#cbd5e1;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial}
-
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
 .topbar{height:56px;background:#0b1117;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 14px}
-.brand{font-weight:900;letter-spacing:.3px}
+.brand{font-weight:900}
 .flex{flex:1}
 .ctrl{display:flex;align-items:center;gap:8px}
 select,input{background:#0f1520;border:1px solid var(--border);color:var(--fg);border-radius:10px;padding:8px 10px}
-a{color:inherit;text-decoration:none}
 
 /* Banner */
-.banner{position:relative;isolation:isolate;margin:14px;border:1px solid var(--border);border-radius:16px;background:
-linear-gradient(120deg, rgba(124,92,255,.20), rgba(124,92,255,.05) 45%, rgba(255,255,255,.02));box-shadow:var(--shadow);}
-.row{display:flex;gap:16px;align-items:center;padding:18px}
+.banner{margin:14px;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.bannerTint{position:absolute;inset:0;opacity:.22;pointer-events:none}
+.bRow{position:relative;display:flex;gap:16px;align-items:center;padding:18px}
 .logoWrap{width:72px;height:72px;border-radius:16px;background:rgba(255,255,255,.08);display:grid;place-items:center;overflow:hidden;border:1px solid var(--border)}
 .logoWrap img{width:100%;height:100%;object-fit:contain}
 .titleBlock{display:flex;flex-direction:column;gap:6px}
-.title{font-size:22px;font-weight:1000;letter-spacing:.2px}
+.title{font-size:22px;font-weight:1000}
 .sub{color:var(--muted);font-weight:700}
-.chips{display:flex;gap:10px;flex-wrap:wrap}
-.chip{display:flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:7px 12px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.chip{display:flex;align-items:center;gap:8px;background:rgba(17,24,33,.55);border:1px solid var(--border);border-radius:999px;padding:7px 12px}
 .chip strong{font-weight:900}
-.chip.good{color:var(--good)} .chip.bad{color:var(--bad)}
-.meta{display:flex;align-items:center;gap:10px;margin-left:auto;opacity:.85}
-.meta small{color:var(--muted)}
+.chip.up{color:var(--good)} .chip.down{color:var(--bad)} .chip.same{color:var(--neu)}
+.meta{margin-left:auto;display:flex;gap:12px;color:var(--muted)}
 
 /* Table */
-.wrap{margin:14px;padding:12px;border:1px solid var(--border);border-radius:16px;background:var(--panel);box-shadow:var(--shadow)}
+.wrap{margin:14px;border:1px solid var(--border);border-radius:16px;background:var(--panel);box-shadow:var(--shadow)}
 .tbl{width:100%;border-collapse:collapse}
 .tbl th,.tbl td{padding:12px;border-bottom:1px solid var(--border)}
-.tbl th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+.tbl th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase}
 .tbl tr:last-child td{border-bottom:none}
 .badge{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid var(--border);vertical-align:middle;margin-right:8px}
 .badge img{width:100%;height:100%;object-fit:contain}
 .result{font-weight:1000}
 .result.win{color:var(--good)} .result.loss{color:var(--bad)}
-.btnLink{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card)}
 .note{color:var(--muted);text-align:center;padding:18px}
 
-/* Responsive tweaks */
-@media (max-width:860px){
-  .meta{display:none}
-  .tbl th:nth-child(4), .tbl td:nth-child(4) {display:none;} /* hide 'Time' on narrow screens */
-  .tbl th:nth-child(6), .tbl td:nth-child(6) {display:none;} /* hide 'Game Info' */
-}
+/* Tickers */
+.tickers{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-rows:1fr 1fr 1fr 1fr;gap:6px;padding:8px}
+.tLane{height:46px;background:rgba(15,21,32,.65);backdrop-filter:blur(6px);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.tTrack{display:flex;gap:18px;white-space:nowrap;animation:scroll 35s linear infinite;padding:0 18px}
+.tItem{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:rgba(255,255,255,.06);padding:6px 10px;border-radius:10px}
+.tLogo{width:22px;height:22px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.1);display:grid;place-items:center}
+.tLogo img{width:100%;height:100%;object-fit:contain}
+.tLabel{font-size:12px;color:var(--muted);margin-right:8px}
+@keyframes scroll {from{transform:translateX(0)} to{transform:translateX(-50%)}}
+
+/* push content above tickers */
+.pageBottomSpace{height:220px}
 </style>
 </head>
 <body>
@@ -75,236 +75,250 @@ linear-gradient(120deg, rgba(124,92,255,.20), rgba(124,92,255,.05) 45%, rgba(255
   </div>
 </div>
 
-<!-- Team banner -->
+<!-- Banner -->
 <div class="banner">
-  <div class="row">
+  <div id="tint" class="bannerTint"></div>
+  <div class="bRow">
     <div class="logoWrap"><img id="teamLogo" alt="logo" src="" onerror="this.src='';this.closest('.logoWrap').textContent='?';"/></div>
     <div class="titleBlock">
       <div class="title" id="teamName">Team</div>
-      <div class="sub" id="teamSub">Virginia HS Football</div>
-      <div class="chips" id="chips">
-        <!-- chips inserted here -->
-      </div>
+      <div class="sub" id="teamSub">Virginia High School Football</div>
+      <div class="chips" id="chips"></div>
     </div>
     <div class="meta">
-      <small id="seasonText">2025–26</small>
-      <small id="updatedText">Updated –</small>
+      <div id="seasonText">2025–26</div>
+      <div id="updatedText">Updated —</div>
     </div>
   </div>
 </div>
 
-<!-- Schedule table -->
+<!-- Schedule -->
 <div class="wrap">
   <table class="tbl">
     <thead>
       <tr>
         <th style="width:110px">Date</th>
         <th>Opponent</th>
-        <th style="width:90px">Home/Away</th>
+        <th style="width:110px">Home/Away</th>
         <th style="width:85px">Time</th>
-        <th style="width:120px">Result</th>
-        <th style="width:120px">Game Info</th>
-        <th style="width:90px">Watch</th>
+        <th style="width:130px">Result</th>
       </tr>
     </thead>
-    <tbody id="schedBody">
-      <tr><td colspan="7" class="note">Loading…</td></tr>
-    </tbody>
+    <tbody id="schedBody"><tr><td colspan="5" class="note">Loading…</td></tr></tbody>
   </table>
 </div>
 
+<div class="pageBottomSpace"></div>
+
+<!-- 4 tickers -->
+<div class="tickers">
+  <div class="tLane"><div class="tLabel">James River District</div><div id="tJR" class="tTrack"></div></div>
+  <div class="tLane"><div class="tLabel">Virginia</div><div id="tVA" class="tTrack"></div></div>
+  <div class="tLane"><div class="tLabel">Richmond Metro</div><div id="tRM" class="tTrack"></div></div>
+  <div class="tLane"><div class="tLabel">National</div><div id="tUS" class="tTrack"></div></div>
+</div>
+
 <script>
-/* ---------- config ---------- */
+/* ==================== CONFIG ==================== */
 const CSV_SCHEDULES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=880614099&single=true&output=csv";
 const CSV_PUBLISHED = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=1511185785&single=true&output=csv";
+
+/* Optional: if you want to pull colors from a Team_Colors tab too,
+   set COLORS_CSV to that tab’s CSV url (or leave "" to skip). */
+const COLORS_CSV = ""; // e.g. ".../pub?gid=######&single=true&output=csv"
+
 const LOGO_BASE = "https://tsw9rc.github.io/mancave-ticker/logos";
 
-/* ---------- util ---------- */
+/* ==================== UTIL ==================== */
 const slug = s => (s||"").toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
-const toHyphen = s => s.replace(/_/g,"-");
-const fmtDate = s => {
-  if(!s) return "";
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const d = new Date(s); if(isNaN(d)) return s;
-  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), da=String(d.getDate()).padStart(2,"0");
-  return `${y}-${m}-${da}`;
-};
-const parseCSV = t => {
-  const rows=[], len=t.length; let i=0,q=false,f="",row=[];
-  while(i<len){
-    const c=t[i];
-    if(q){ if(c=='"'){ if(t[i+1]=='"'){f+='"'; i++;} else q=false; } else f+=c; }
-    else { if(c=='"') q=true; else if(c==','){row.push(f);f="";} else if(c=='\n'||c=='\r'){ if(c=='\r'&&t[i+1]=='\n')i++; row.push(f); f=""; if(row.length) rows.push(row); row=[]; } else f+=c; }
-    i++;
-  } if(f.length||row.length){ row.push(f); rows.push(row); }
-  return rows;
-};
-const ix = h => { const m={}; h.forEach((x,i)=>m[(x||"").trim().toLowerCase()]=i); return m; };
-const get = (r,i) => i>=0 ? (r[i]||"").trim() : "";
+const pctStr = s => s && !String(s).includes("%") ? `${s}%` : (s||"");
+function parseCSV(t){const rows=[];let i=0,q=false,f="",row=[];while(i<t.length){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++;}else q=false;} else f+=c;} else {if(c=='"')q=true;else if(c==','){row.push(f);f="";}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);f="";if(row.length)rows.push(row);row=[];}else f+=c;}i++;}if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
+const ix=h=>{const m={};h.forEach((x,i)=>m[(x||"").trim().toLowerCase()]=i);return m;}
+const get=(r,i)=>i>=0?(r[i]||"").trim():"";
 
-/* ---------- data ---------- */
+/* ==================== DATA ==================== */
 let SCHED=[], PUB=[], TEAM_LIST=[];
-let PRI={}, SEC={}, LOGO={}, WL={}, PCT={}, PF={}, PA={}, UPDATED={};
-let RANK_GROUPS = {}; // {teamLower: {JAMES_RIVER:rank, VIRGINIA:rank, NATIONAL:rank}}
+let WL={}, PCT={}, PF={}, PA={}, UPDATED={}, LOGO={}, COLORS={};
+let RANKS = {};  // RANKS[teamLower] = { JAMES_RIVER:n, RICHMOND:n, VIRGINIA:n, NATIONAL:n }
+let DELTAS = {}; // DELTAS[teamLower] = { JAMES_RIVER:delta, ... }
 
-/* ---------- load ---------- */
-(async () => {
-  const [sv, pv] = await Promise.all([
-    fetch(CSV_SCHEDULES, {cache:"no-store"}).then(r=>r.text()),
-    fetch(CSV_PUBLISHED, {cache:"no-store"}).then(r=>r.text())
+/* ==================== LOAD ==================== */
+(async ()=>{
+  const [sv, pv, cv] = await Promise.all([
+    fetch(CSV_SCHEDULES,{cache:"no-store"}).then(r=>r.text()),
+    fetch(CSV_PUBLISHED,{cache:"no-store"}).then(r=>r.text()),
+    COLORS_CSV ? fetch(COLORS_CSV,{cache:"no-store"}).then(r=>r.text()).catch(()=>null) : Promise.resolve(null)
   ]);
+
   // schedules
-  const rs = parseCSV(sv);
+  const rs=parseCSV(sv);
   if(rs.length){
-    const h=ix(rs[0]); const iT=h["team"], iO=h["opponent"], iD=h["gamedate"]||h["date"], iH=h["homeaway"], iR=h["result"], iTime=h["time"], iInfo=h["info"], iWatch=h["watch"], iLogo=h["logo"];
-    SCHED = rs.slice(1).filter(r=>get(r,iT)).map(r=>({
-      team:get(r,iT), opponent:get(r,iO), date:fmtDate(get(r,iD)), homeAway:get(r,iH), time:get(r,iTime),
-      result:get(r,iR), gameInfo:get(r,iInfo), watch:get(r,iWatch), logo:get(r,iLogo)
-    }));
+    const h=ix(rs[0]); const iT=h["team"],iO=h["opponent"],iD=h["gamedate"]||h["date"],iH=h["homeaway"],iTime=h["time"],iR=h["result"];
+    SCHED=rs.slice(1).filter(r=>get(r,iT)).map(r=>({team:get(r,iT),opponent:get(r,iO),date:get(r,iD),homeAway:get(r,iH),time:get(r,iTime),result:get(r,iR)}));
   }
+
   // published
-  const rp = parseCSV(pv);
+  const rp=parseCSV(pv);
   if(rp.length){
-    const h=ix(rp[0]); const iT=h["team"], iWL=h["overall_wl"]||h["region_wl"], iPCT=h["overall_pct"], iPF=h["pf"], iPA=h["pa"], iRank=h["rank"], iSrc=h["rank_source"], iLogo=h["logo"], iUp=h["updatedat"]||h["updated"];
-    PUB = rp.slice(1).filter(r=>get(r,iT)).map(r=>({
-      team:get(r,iT), wl:get(r,iWL), pct:get(r,iPCT), pf:get(r,iPF), pa:get(r,iPA),
-      rank: parseInt(get(r,iRank)||"",10) || null,
-      source:(get(r,iSrc)||"").toUpperCase(),
-      logo:get(r,iLogo),
-      updated:get(r,iUp)
-    }));
-    // maps
-    TEAM_LIST = [...new Set(PUB.map(x=>x.team))].sort((a,b)=>a.localeCompare(b));
+    const h=ix(rp[0]); const iT=h["team"],iWL=h["overall_wl"]||h["region_wl"],iPCT=h["overall_pct"],iPF=h["pf"],iPA=h["pa"],iRank=h["rank"],iSrc=h["rank_source"],iLogo=h["logo"],iUpd=h["updatedat"]||h["updated"], iPri=h["primaryhex"], iSec=h["secondaryhex"], iDelta=h["delta"], iArrow=h["arrow"];
+    PUB=rp.slice(1).filter(r=>get(r,iT)).map(r=>{
+      const src=(get(r,iSrc)||"").toUpperCase();
+      const delta=get(r,iDelta); // numeric or blank
+      return {
+        team:get(r,iT),
+        wl:get(r,iWL), pct:get(r,iPCT), pf:get(r,iPF), pa:get(r,iPA),
+        rank:parseInt(get(r,iRank)||"",10)||null, source:src,
+        updated:get(r,iUpd), logo:get(r,iLogo),
+        primary:get(r,iPri), secondary:get(r,iSec),
+        delta: delta==="" ? null : (isNaN(Number(delta)) ? null : Number(delta)),
+        arrow:get(r,iArrow)||""
+      };
+    });
+
+    TEAM_LIST=[...new Set(PUB.map(x=>x.team))].sort((a,b)=>a.localeCompare(b));
+
     for(const r of PUB){
-      const key=r.team.toLowerCase();
-      WL[key]=r.wl||WL[key]; PCT[key]=r.pct||PCT[key]; PF[key]=r.pf||PF[key]; PA[key]=r.pa||PA[key];
-      UPDATED[key]=r.updated||UPDATED[key];
-      LOGO[key]=r.logo||LOGO[key];
-      if(!RANK_GROUPS[key]) RANK_GROUPS[key]={};
-      if(r.source) RANK_GROUPS[key][r.source]=r.rank;
+      const k=r.team.toLowerCase();
+      WL[k]=WL[k]||r.wl; PCT[k]=PCT[k]||r.pct; PF[k]=PF[k]||r.pf; PA[k]=PA[k]||r.pa; UPDATED[k]=UPDATED[k]||r.updated; LOGO[k]=LOGO[k]||r.logo;
+      if(r.primary||r.secondary){ COLORS[k]={primary:r.primary, secondary:r.secondary}; }
+      if(!RANKS[k]) RANKS[k]={}; if(!DELTAS[k]) DELTAS[k]={};
+      if(r.source){ RANKS[k][r.source]=r.rank; DELTAS[k][r.source]=r.delta; }
     }
   }
 
-  buildTeamList();
-  // pick first team with data
-  const def = localStorage.getItem("mc_team") || TEAM_LIST[0] || (SCHED[0]&&SCHED[0].team) || "";
+  // optional colors csv (Team, PrimaryHex, SecondaryHex)
+  if(cv){
+    const rc=parseCSV(cv); if(rc.length){
+      const h=ix(rc[0]); const iT=h["team"]||h["source_name"]||h["preferred_name"], iP=h["primaryhex"], iS=h["secondaryhex"];
+      rc.slice(1).forEach(r=>{
+        const team=get(r,iT); if(!team) return;
+        const k=team.toLowerCase();
+        if(!COLORS[k]) COLORS[k]={};
+        COLORS[k].primary = COLORS[k].primary || get(r,iP);
+        COLORS[k].secondary = COLORS[k].secondary || get(r,iS);
+      });
+    }
+  }
+
+  buildTeamOptions();
+  const def = localStorage.getItem("mc_team_v2") || TEAM_LIST[0] || (SCHED[0]&&SCHED[0].team) || "";
   document.getElementById("teamSel").value = def;
   render(def);
+
+  // 4 tickers
+  buildTickerRow("JAMES_RIVER","tJR");
+  buildTickerRow("VIRGINIA","tVA");
+  buildTickerRow("RICHMOND","tRM");
+  buildTickerRow("NATIONAL","tUS");
 })();
 
-/* ---------- UI builders ---------- */
-function buildTeamList(){
-  const sel = document.getElementById("teamSel");
+/* ==================== UI ==================== */
+function buildTeamOptions(){
+  const sel=document.getElementById("teamSel");
   sel.innerHTML = TEAM_LIST.map(t=>`<option value="${t}">${t}</option>`).join("");
-  sel.addEventListener("change", e => {
-    localStorage.setItem("mc_team", e.target.value);
+  sel.addEventListener("change",e=>{
+    localStorage.setItem("mc_team_v2", e.target.value);
     render(e.target.value);
   });
-  document.getElementById("sortSel").addEventListener("change", () => render(sel.value));
+  document.getElementById("sortSel").addEventListener("change", ()=>render(sel.value));
+}
+
+function chip(label,value,cls){ return `<span class="chip ${cls||""}"><strong>${label}</strong> ${value??"–"}</span>`; }
+function deltaChip(name, current, delta){
+  let cls="same", arrow="–", prev="";
+  if(typeof delta==="number"){
+    if(delta<0){cls="up"; arrow="▲";} else if(delta>0){cls="down"; arrow="▼";}
+    const prevRank = (current && !isNaN(current)) ? (current - delta) : "";
+    prev = prevRank?` (prev ${prevRank})`:"";
+  }
+  return chip(name, `#${current??"–"} ${arrow}${prev}`, cls);
 }
 
 function render(team){
-  if(!team){ document.getElementById("schedBody").innerHTML='<tr><td colspan="7" class="note">No team data.</td></tr>'; return; }
-
   buildBanner(team);
   buildSchedule(team);
 }
 
-function bannerChip(label, value, cls=""){
-  return `<span class="chip ${cls}"><strong>${label}</strong> ${value??"–"}</span>`;
-}
-
 function buildBanner(team){
-  const key = team.toLowerCase();
-  const teamName = document.getElementById("teamName");
-  const teamSub = document.getElementById("teamSub");
-  const chips = document.getElementById("chips");
-  const upd = document.getElementById("updatedText");
+  const k=team.toLowerCase();
+  const name=document.getElementById("teamName"); name.textContent=team;
+  document.getElementById("teamSub").textContent="Virginia High School Football";
+  document.getElementById("updatedText").textContent = `Updated — ${UPDATED[k]||"–"}`;
 
-  teamName.textContent = team;
-  teamSub.textContent = "Virginia High School Football";
+  const jr = RANKS[k]?.JAMES_RIVER, va = RANKS[k]?.VIRGINIA, us = RANKS[k]?.NATIONAL, rm = RANKS[k]?.RICHMOND;
+  const djr= DELTAS[k]?.JAMES_RIVER, dva=DELTAS[k]?.VIRGINIA, dus=DELTAS[k]?.NATIONAL, drm=DELTAS[k]?.RICHMOND;
 
-  // compute ranks by group
-  const g = RANK_GROUPS[key] || {};
-  const rJames = g.JAMES_RIVER ?? "–";
-  const rVA = g.VIRGINIA ?? "–";
-  const rNat = g.NATIONAL ?? "–";
-
-  const overall = WL[key] || "–";
-  const pct = PCT[key] || "–";
-
+  const chips=document.getElementById("chips");
+  const regionWL = WL[k] || "–";
+  const pct = pctStr(PCT[k] || "");
   chips.innerHTML = [
-    bannerChip("Overall", overall, "good"),
-    bannerChip("PCT", pct),
-    bannerChip("Region", rJames ? `#${rJames}` : "–"),
-    bannerChip("VA Rank", rVA ? `#${rVA}` : "–"),
-    bannerChip("NAT Rank", rNat ? `#${rNat}` : "–")
+    chip("Region", regionWL),
+    chip("PCT", pct),
+    deltaChip("JRD", jr, djr),
+    deltaChip("Richmond", rm, drm),
+    deltaChip("Virginia", va, dva),
+    deltaChip("National", us, dus),
   ].join("");
 
-  upd.textContent = `Updated — ${UPDATED[key] || "–"}`;
-
   // logo
-  const logoEl = document.getElementById("teamLogo");
-  const s = slug(team);
-  const srcs = [
-    LOGO[key] || "",
-    `${LOGO_BASE}/${s}.png`,
-    `${LOGO_BASE}/${s.replace(/_/g,"-")}.png`
-  ].filter(Boolean);
-  logoEl.src = srcs[0] || "";
-  logoEl.onerror = () => {
-    const next = srcs.shift();
-    if(srcs.length) logoEl.src = srcs[0];
-    else { logoEl.src=""; logoEl.closest(".logoWrap").textContent='?'; }
-  };
+  const s=slug(team); const srcs=[ LOGO[k]||"", `${LOGO_BASE}/${s}.png`, `${LOGO_BASE}/${s.replace(/_/g,"-")}.png` ].filter(Boolean);
+  const logoEl=document.getElementById("teamLogo"); let i=0; logoEl.src=srcs[i]||""; logoEl.onerror=()=>{ i++; if(i<srcs.length) logoEl.src=srcs[i]; else {logoEl.src=""; logoEl.closest(".logoWrap").textContent='?'; } };
+
+  // banner tint using colors
+  const p = (COLORS[k]?.primary||"#7c5cff"), s2=(COLORS[k]?.secondary||"#1f2a44");
+  document.getElementById("tint").style.background = `linear-gradient(120deg, ${p}, ${s2})`;
 }
 
 function buildSchedule(team){
-  const sort = document.getElementById("sortSel").value;
-  const body = document.getElementById("schedBody");
-  let rows = SCHED.filter(x=>x.team===team);
-  if(!rows.length){
-    body.innerHTML = '<tr><td colspan="7" class="note">No schedule found for this team.</td></tr>';
-    return;
-  }
-  rows.sort((a,b)=>{
-    const ad=a.date, bd=b.date;
-    if(sort==='date-desc') return ad<bd?1:(ad>bd?-1:0);
-    return ad<bd?-1:(ad>bd?1:0);
-  });
+  const body=document.getElementById("schedBody");
+  let rows=SCHED.filter(x=>x.team===team);
+  if(!rows.length){ body.innerHTML='<tr><td colspan="5" class="note">No schedule found for this team.</td></tr>'; return; }
+
+  const sort=document.getElementById("sortSel").value;
+  rows.sort((a,b)=> sort==='date-desc' ? (a.date<b.date?1:-1) : (a.date<b.date?-1:1) );
 
   body.innerHTML="";
   for(const r of rows){
-    // result class + normalized display (e.g. "21-14 Win" / "7-21 Loss")
-    let resTxt = (r.result||"").trim();
-    let cls = "";
-    const m = resTxt.match(/([WL])\s*([0-9]{1,2})[-: ]([0-9]{1,2})/i);
-    if(m){
-      const win = m[1].toUpperCase()==="W";
-      resTxt = `${m[2]}-${m[3]} ${win?"Win":"Loss"}`;
-      cls = win ? "win" : "loss";
-    }
-    const oppSlug = slug(r.opponent||"");
-    const oppLogoTry = [
-      `${LOGO_BASE}/${oppSlug}.png`,
-      `${LOGO_BASE}/${oppSlug.replace(/_/g,"-")}.png`
-    ];
+    // result text -> "21-14 Win" / "7-21 Loss"
+    let res=(r.result||"").trim(), cls="";
+    const m=res.match(/([WL])\s*([0-9]{1,2})[-: ]([0-9]{1,2})/i);
+    if(m){ const isW=m[1].toUpperCase()==="W"; res=`${m[2]}-${m[3]} ${isW?"Win":"Loss"}`; cls=isW?"win":"loss"; }
+
+    const oppSlug=slug(r.opponent||"");
+    const oppLogo1=`${LOGO_BASE}/${oppSlug}.png`, oppLogo2=`${LOGO_BASE}/${oppSlug.replace(/_/g,"-")}.png`;
 
     body.insertAdjacentHTML("beforeend", `
       <tr>
         <td>${r.date||""}</td>
-        <td>
-          <span class="badge">
-            <img src="${oppLogoTry[0]}" onerror="this.onerror=null;this.src='${oppLogoTry[1]}';"/>
-          </span>
-          ${r.opponent||""}
-        </td>
+        <td><span class="badge"><img src="${oppLogo1}" onerror="this.onerror=null;this.src='${oppLogo2}'"/></span>${r.opponent||""}</td>
         <td>${r.homeAway||""}</td>
         <td>${r.time||""}</td>
-        <td class="result ${cls}">${resTxt||""}</td>
-        <td>${r.gameInfo?`<a class="btnLink" href="${r.gameInfo}" target="_blank" rel="noopener">Preview</a>`:""}</td>
-        <td>${r.watch?`<a class="btnLink" href="${r.watch}" target="_blank" rel="noopener">Watch</a>`:""}</td>
+        <td class="result ${cls}">${res||""}</td>
       </tr>
+    `);
+  }
+}
+
+/* ==================== 4 TICKERS ==================== */
+function buildTickerRow(GROUP, laneId){
+  const track=document.getElementById(laneId);
+  const items = PUB.filter(r=>r.source===GROUP).sort((a,b)=>(a.rank??9999)-(b.rank??9999));
+  const doubled = items.concat(items);
+  track.innerHTML="";
+  for(const r of doubled){
+    const k=r.team.toLowerCase();
+    const s=slug(r.team);
+    const src1=LOGO[k]||`${LOGO_BASE}/${s}.png`, src2=`${LOGO_BASE}/${s.replace(/_/g,"-")}.png`;
+    const wl=WL[k]||r.wl||"", pf=PF[k]||r.pf||"", pa=PA[k]||r.pa||"";
+    track.insertAdjacentHTML("beforeend", `
+      <div class="tItem">
+        <span class="tLogo"><img src="${src1}" onerror="this.onerror=null;this.src='${src2}'"/></span>
+        <strong>#${r.rank||"–"} ${r.team}</strong>
+        <span style="color:var(--muted)">•</span>
+        <span>W-L ${wl}</span>
+        <span style="color:var(--muted)">•</span>
+        <span>PF ${pf} / PA ${pa}</span>
+      </div>
     `);
   }
 }
