@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ManCave Sports — Team Schedule (Pro)</title>
+<style>
+:root{
+  --bg:#0a0f14; --panel:#0f141b; --card:#121a22; --fg:#e9eef5; --muted:#9fb0bf;
+  --border:rgba(255,255,255,.10); --accent:#7c5cff;
+  --good:#22c55e; --bad:#ef4444; --chip:#1a2430; --chipB:#223044;
+  --shadow:0 18px 50px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial}
+
+.topbar{height:56px;background:#0b1117;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 14px}
+.brand{font-weight:900;letter-spacing:.3px}
+.flex{flex:1}
+.ctrl{display:flex;align-items:center;gap:8px}
+select,input{background:#0f1520;border:1px solid var(--border);color:var(--fg);border-radius:10px;padding:8px 10px}
+a{color:inherit;text-decoration:none}
+
+/* Banner */
+.banner{position:relative;isolation:isolate;margin:14px;border:1px solid var(--border);border-radius:16px;background:
+linear-gradient(120deg, rgba(124,92,255,.20), rgba(124,92,255,.05) 45%, rgba(255,255,255,.02));box-shadow:var(--shadow);}
+.row{display:flex;gap:16px;align-items:center;padding:18px}
+.logoWrap{width:72px;height:72px;border-radius:16px;background:rgba(255,255,255,.08);display:grid;place-items:center;overflow:hidden;border:1px solid var(--border)}
+.logoWrap img{width:100%;height:100%;object-fit:contain}
+.titleBlock{display:flex;flex-direction:column;gap:6px}
+.title{font-size:22px;font-weight:1000;letter-spacing:.2px}
+.sub{color:var(--muted);font-weight:700}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:7px 12px}
+.chip strong{font-weight:900}
+.chip.good{color:var(--good)} .chip.bad{color:var(--bad)}
+.meta{display:flex;align-items:center;gap:10px;margin-left:auto;opacity:.85}
+.meta small{color:var(--muted)}
+
+/* Table */
+.wrap{margin:14px;padding:12px;border:1px solid var(--border);border-radius:16px;background:var(--panel);box-shadow:var(--shadow)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th,.tbl td{padding:12px;border-bottom:1px solid var(--border)}
+.tbl th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+.tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid var(--border);vertical-align:middle;margin-right:8px}
+.badge img{width:100%;height:100%;object-fit:contain}
+.result{font-weight:1000}
+.result.win{color:var(--good)} .result.loss{color:var(--bad)}
+.btnLink{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card)}
+.note{color:var(--muted);text-align:center;padding:18px}
+
+/* Responsive tweaks */
+@media (max-width:860px){
+  .meta{display:none}
+  .tbl th:nth-child(4), .tbl td:nth-child(4) {display:none;} /* hide 'Time' on narrow screens */
+  .tbl th:nth-child(6), .tbl td:nth-child(6) {display:none;} /* hide 'Game Info' */
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ManCave Sports</div>
+  <div class="flex"></div>
+  <div class="ctrl">
+    <label for="teamSel" style="color:var(--muted);font-size:13px;">Team</label>
+    <select id="teamSel"></select>
+    <label for="sortSel" style="color:var(--muted);font-size:13px;">Sort</label>
+    <select id="sortSel">
+      <option value="date-asc">Date ↑</option>
+      <option value="date-desc">Date ↓</option>
+    </select>
+  </div>
+</div>
+
+<!-- Team banner -->
+<div class="banner">
+  <div class="row">
+    <div class="logoWrap"><img id="teamLogo" alt="logo" src="" onerror="this.src='';this.closest('.logoWrap').textContent='?';"/></div>
+    <div class="titleBlock">
+      <div class="title" id="teamName">Team</div>
+      <div class="sub" id="teamSub">Virginia HS Football</div>
+      <div class="chips" id="chips">
+        <!-- chips inserted here -->
+      </div>
+    </div>
+    <div class="meta">
+      <small id="seasonText">2025–26</small>
+      <small id="updatedText">Updated –</small>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule table -->
+<div class="wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th style="width:110px">Date</th>
+        <th>Opponent</th>
+        <th style="width:90px">Home/Away</th>
+        <th style="width:85px">Time</th>
+        <th style="width:120px">Result</th>
+        <th style="width:120px">Game Info</th>
+        <th style="width:90px">Watch</th>
+      </tr>
+    </thead>
+    <tbody id="schedBody">
+      <tr><td colspan="7" class="note">Loading…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+/* ---------- config ---------- */
+const CSV_SCHEDULES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=880614099&single=true&output=csv";
+const CSV_PUBLISHED = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=1511185785&single=true&output=csv";
+const LOGO_BASE = "https://tsw9rc.github.io/mancave-ticker/logos";
+
+/* ---------- util ---------- */
+const slug = s => (s||"").toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+const toHyphen = s => s.replace(/_/g,"-");
+const fmtDate = s => {
+  if(!s) return "";
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d = new Date(s); if(isNaN(d)) return s;
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), da=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${da}`;
+};
+const parseCSV = t => {
+  const rows=[], len=t.length; let i=0,q=false,f="",row=[];
+  while(i<len){
+    const c=t[i];
+    if(q){ if(c=='"'){ if(t[i+1]=='"'){f+='"'; i++;} else q=false; } else f+=c; }
+    else { if(c=='"') q=true; else if(c==','){row.push(f);f="";} else if(c=='\n'||c=='\r'){ if(c=='\r'&&t[i+1]=='\n')i++; row.push(f); f=""; if(row.length) rows.push(row); row=[]; } else f+=c; }
+    i++;
+  } if(f.length||row.length){ row.push(f); rows.push(row); }
+  return rows;
+};
+const ix = h => { const m={}; h.forEach((x,i)=>m[(x||"").trim().toLowerCase()]=i); return m; };
+const get = (r,i) => i>=0 ? (r[i]||"").trim() : "";
+
+/* ---------- data ---------- */
+let SCHED=[], PUB=[], TEAM_LIST=[];
+let PRI={}, SEC={}, LOGO={}, WL={}, PCT={}, PF={}, PA={}, UPDATED={};
+let RANK_GROUPS = {}; // {teamLower: {JAMES_RIVER:rank, VIRGINIA:rank, NATIONAL:rank}}
+
+/* ---------- load ---------- */
+(async () => {
+  const [sv, pv] = await Promise.all([
+    fetch(CSV_SCHEDULES, {cache:"no-store"}).then(r=>r.text()),
+    fetch(CSV_PUBLISHED, {cache:"no-store"}).then(r=>r.text())
+  ]);
+  // schedules
+  const rs = parseCSV(sv);
+  if(rs.length){
+    const h=ix(rs[0]); const iT=h["team"], iO=h["opponent"], iD=h["gamedate"]||h["date"], iH=h["homeaway"], iR=h["result"], iTime=h["time"], iInfo=h["info"], iWatch=h["watch"], iLogo=h["logo"];
+    SCHED = rs.slice(1).filter(r=>get(r,iT)).map(r=>({
+      team:get(r,iT), opponent:get(r,iO), date:fmtDate(get(r,iD)), homeAway:get(r,iH), time:get(r,iTime),
+      result:get(r,iR), gameInfo:get(r,iInfo), watch:get(r,iWatch), logo:get(r,iLogo)
+    }));
+  }
+  // published
+  const rp = parseCSV(pv);
+  if(rp.length){
+    const h=ix(rp[0]); const iT=h["team"], iWL=h["overall_wl"]||h["region_wl"], iPCT=h["overall_pct"], iPF=h["pf"], iPA=h["pa"], iRank=h["rank"], iSrc=h["rank_source"], iLogo=h["logo"], iUp=h["updatedat"]||h["updated"];
+    PUB = rp.slice(1).filter(r=>get(r,iT)).map(r=>({
+      team:get(r,iT), wl:get(r,iWL), pct:get(r,iPCT), pf:get(r,iPF), pa:get(r,iPA),
+      rank: parseInt(get(r,iRank)||"",10) || null,
+      source:(get(r,iSrc)||"").toUpperCase(),
+      logo:get(r,iLogo),
+      updated:get(r,iUp)
+    }));
+    // maps
+    TEAM_LIST = [...new Set(PUB.map(x=>x.team))].sort((a,b)=>a.localeCompare(b));
+    for(const r of PUB){
+      const key=r.team.toLowerCase();
+      WL[key]=r.wl||WL[key]; PCT[key]=r.pct||PCT[key]; PF[key]=r.pf||PF[key]; PA[key]=r.pa||PA[key];
+      UPDATED[key]=r.updated||UPDATED[key];
+      LOGO[key]=r.logo||LOGO[key];
+      if(!RANK_GROUPS[key]) RANK_GROUPS[key]={};
+      if(r.source) RANK_GROUPS[key][r.source]=r.rank;
+    }
+  }
+
+  buildTeamList();
+  // pick first team with data
+  const def = localStorage.getItem("mc_team") || TEAM_LIST[0] || (SCHED[0]&&SCHED[0].team) || "";
+  document.getElementById("teamSel").value = def;
+  render(def);
+})();
+
+/* ---------- UI builders ---------- */
+function buildTeamList(){
+  const sel = document.getElementById("teamSel");
+  sel.innerHTML = TEAM_LIST.map(t=>`<option value="${t}">${t}</option>`).join("");
+  sel.addEventListener("change", e => {
+    localStorage.setItem("mc_team", e.target.value);
+    render(e.target.value);
+  });
+  document.getElementById("sortSel").addEventListener("change", () => render(sel.value));
+}
+
+function render(team){
+  if(!team){ document.getElementById("schedBody").innerHTML='<tr><td colspan="7" class="note">No team data.</td></tr>'; return; }
+
+  buildBanner(team);
+  buildSchedule(team);
+}
+
+function bannerChip(label, value, cls=""){
+  return `<span class="chip ${cls}"><strong>${label}</strong> ${value??"–"}</span>`;
+}
+
+function buildBanner(team){
+  const key = team.toLowerCase();
+  const teamName = document.getElementById("teamName");
+  const teamSub = document.getElementById("teamSub");
+  const chips = document.getElementById("chips");
+  const upd = document.getElementById("updatedText");
+
+  teamName.textContent = team;
+  teamSub.textContent = "Virginia High School Football";
+
+  // compute ranks by group
+  const g = RANK_GROUPS[key] || {};
+  const rJames = g.JAMES_RIVER ?? "–";
+  const rVA = g.VIRGINIA ?? "–";
+  const rNat = g.NATIONAL ?? "–";
+
+  const overall = WL[key] || "–";
+  const pct = PCT[key] || "–";
+
+  chips.innerHTML = [
+    bannerChip("Overall", overall, "good"),
+    bannerChip("PCT", pct),
+    bannerChip("Region", rJames ? `#${rJames}` : "–"),
+    bannerChip("VA Rank", rVA ? `#${rVA}` : "–"),
+    bannerChip("NAT Rank", rNat ? `#${rNat}` : "–")
+  ].join("");
+
+  upd.textContent = `Updated — ${UPDATED[key] || "–"}`;
+
+  // logo
+  const logoEl = document.getElementById("teamLogo");
+  const s = slug(team);
+  const srcs = [
+    LOGO[key] || "",
+    `${LOGO_BASE}/${s}.png`,
+    `${LOGO_BASE}/${s.replace(/_/g,"-")}.png`
+  ].filter(Boolean);
+  logoEl.src = srcs[0] || "";
+  logoEl.onerror = () => {
+    const next = srcs.shift();
+    if(srcs.length) logoEl.src = srcs[0];
+    else { logoEl.src=""; logoEl.closest(".logoWrap").textContent='?'; }
+  };
+}
+
+function buildSchedule(team){
+  const sort = document.getElementById("sortSel").value;
+  const body = document.getElementById("schedBody");
+  let rows = SCHED.filter(x=>x.team===team);
+  if(!rows.length){
+    body.innerHTML = '<tr><td colspan="7" class="note">No schedule found for this team.</td></tr>';
+    return;
+  }
+  rows.sort((a,b)=>{
+    const ad=a.date, bd=b.date;
+    if(sort==='date-desc') return ad<bd?1:(ad>bd?-1:0);
+    return ad<bd?-1:(ad>bd?1:0);
+  });
+
+  body.innerHTML="";
+  for(const r of rows){
+    // result class + normalized display (e.g. "21-14 Win" / "7-21 Loss")
+    let resTxt = (r.result||"").trim();
+    let cls = "";
+    const m = resTxt.match(/([WL])\s*([0-9]{1,2})[-: ]([0-9]{1,2})/i);
+    if(m){
+      const win = m[1].toUpperCase()==="W";
+      resTxt = `${m[2]}-${m[3]} ${win?"Win":"Loss"}`;
+      cls = win ? "win" : "loss";
+    }
+    const oppSlug = slug(r.opponent||"");
+    const oppLogoTry = [
+      `${LOGO_BASE}/${oppSlug}.png`,
+      `${LOGO_BASE}/${oppSlug.replace(/_/g,"-")}.png`
+    ];
+
+    body.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${r.date||""}</td>
+        <td>
+          <span class="badge">
+            <img src="${oppLogoTry[0]}" onerror="this.onerror=null;this.src='${oppLogoTry[1]}';"/>
+          </span>
+          ${r.opponent||""}
+        </td>
+        <td>${r.homeAway||""}</td>
+        <td>${r.time||""}</td>
+        <td class="result ${cls}">${resTxt||""}</td>
+        <td>${r.gameInfo?`<a class="btnLink" href="${r.gameInfo}" target="_blank" rel="noopener">Preview</a>`:""}</td>
+        <td>${r.watch?`<a class="btnLink" href="${r.watch}" target="_blank" rel="noopener">Watch</a>`:""}</td>
+      </tr>
+    `);
+  }
+}
+</script>
+</body>
+</html>
