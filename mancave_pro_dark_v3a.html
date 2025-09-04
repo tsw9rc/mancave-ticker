@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ManCave Sports • Pro Dark v3a</title>
+  <style>
+    :root {
+      --bg:#0a0f14; --panel:#0f141b; --fg:#e9eef5; --muted:#9fb0bf;
+      --border:rgba(255,255,255,.09); --accent:#1f6feb;
+      --good:#22c55e; --bad:#ef4444; --neutral:#cbd5e1;
+      --glass:rgba(18,24,32,.55); --shadow:0 14px 40px rgba(0,0,0,.35);
+      --tickerH:86px;
+    }
+    body {margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,Arial}
+    .nav {height:64px;background:#0b1117;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px}
+    .brand {font-weight:900;font-size:18px;display:flex;align-items:center;gap:8px}
+    .tabs {display:flex;gap:8px;margin-left:20px}
+    .tab {padding:10px 16px;border-radius:12px;color:var(--muted);cursor:pointer;font-weight:600}
+    .tab.active {background:rgba(255,255,255,.08);color:var(--fg)}
+    .flex {flex:1}
+    .controls {font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px}
+    .main {display:none;padding:20px;min-height:calc(100vh - var(--tickerH) - 64px)}
+    .main.active {display:block}
+    .panel {background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+    .header {display:flex;gap:10px;padding:12px;border-bottom:1px solid var(--border)}
+    .header input,.header select {background:#0d141b;color:var(--fg);border:1px solid var(--border);padding:6px 10px;border-radius:8px}
+    .notice {text-align:center;color:var(--muted);padding:20px}
+
+    /* Games */
+    .games-wrap {padding:10px}
+    .gcard {display:grid;grid-template-columns:120px 1fr 100px;align-items:center;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;position:relative;overflow:hidden}
+    .gcard .tint {position:absolute;inset:0;opacity:.15}
+    .gdate {text-align:center;font-weight:700;color:var(--muted);border-right:1px solid var(--border);padding:10px;background:rgba(255,255,255,.02)}
+    .gmid {display:flex;align-items:center;gap:12px;padding:10px}
+    .badge {width:40px;height:40px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.08);display:grid;place-items:center}
+    .badge img {width:100%;height:100%;object-fit:contain}
+    .teams {display:flex;flex-direction:column}
+    .teamname {font-weight:700}
+    .opp {color:var(--muted);font-size:14px}
+    .ghomeaway {text-align:center;border-left:1px solid var(--border);padding:10px;background:rgba(255,255,255,.02)}
+    .result {font-weight:700}
+
+    /* Standings */
+    .table {width:100%;border-collapse:collapse}
+    .table th,.table td {padding:12px;border-bottom:1px solid var(--border)}
+    .table th {font-size:12px;color:var(--muted);text-align:left;text-transform:uppercase}
+    .rankcell {width:40px;text-align:center;font-weight:900}
+    .teamcell {display:flex;align-items:center;gap:8px;font-weight:700}
+    .pill {padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:rgba(255,255,255,.06)}
+    .pill.up {color:#22c55e} .pill.down {color:#ef4444} .pill.same {color:#cbd5e1}
+
+    /* Rankings */
+    .rgroup {margin:20px 0}
+    .rtitle {text-align:center;font-size:20px;font-weight:900;margin-bottom:10px}
+    .rrow {display:grid;grid-template-columns:60px 1fr 120px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:6px;background:rgba(255,255,255,.04)}
+    .rnum {text-align:center;font-weight:900}
+    .rteam {display:flex;align-items:center;gap:8px;font-weight:700}
+
+    /* Ticker */
+    .ticker {position:fixed;left:0;right:0;bottom:0;height:var(--tickerH);background:var(--glass);backdrop-filter:blur(10px);display:flex;align-items:center;overflow:hidden;border-top:1px solid var(--border)}
+    .track {display:flex;gap:20px;white-space:nowrap;animation:scroll var(--speed) linear infinite;padding:0 20px}
+    .item {display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06)}
+    .logoSm {width:30px;height:30px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.1);display:grid;place-items:center}
+    .logoSm img {width:100%;height:100%;object-fit:contain}
+    @keyframes scroll {from{transform:translateX(0)} to{transform:translateX(-50%)}}
+  </style>
+</head>
+<body>
+<div class="nav">
+  <div class="brand">● ManCave Sports</div>
+  <div class="tabs">
+    <div class="tab active" data-tab="games">Games</div>
+    <div class="tab" data-tab="standings">Standings</div>
+    <div class="tab" data-tab="rankings">Rankings</div>
+  </div>
+  <div class="flex"></div>
+  <div class="controls"><span>Ticker speed</span><input id="spd" type="range" min="0.5" max="3" step="0.1" value="1.2"></div>
+</div>
+
+<!-- Games -->
+<div id="games" class="main panel active">
+  <div class="header">
+    <input id="gSearch" placeholder="Search opponent">
+    <select id="gTeam"></select>
+    <select id="gSort"><option value="date-asc">Date ↑</option><option value="date-desc">Date ↓</option></select>
+  </div>
+  <div class="games-wrap"><div id="gameList" class="game-list"><div class="notice">Loading…</div></div></div>
+</div>
+
+<!-- Standings -->
+<div id="standings" class="main panel">
+  <div class="header">
+    <input id="sSearch" placeholder="Search team">
+    <select id="sSort"><option value="rank-asc">Rank ↑</option><option value="rank-desc">Rank ↓</option><option value="pct-desc">PCT ↓</option></select>
+  </div>
+  <div class="games-wrap">
+    <table class="table"><thead><tr><th class="rankcell">#</th><th>Team</th><th>W-L</th><th>PCT</th><th>PF</th><th>PA</th><th>Δ | Prev</th></tr></thead>
+    <tbody id="standBody"><tr><td colspan="7" class="notice">Loading…</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- Rankings -->
+<div id="rankings" class="main panel">
+  <div class="header">
+    <input id="rSearch" placeholder="Search team">
+    <select id="rGroup">
+      <option value="ALL">All Groups</option>
+      <option value="JAMES_RIVER">James River District</option>
+      <option value="DIV2A">Virginia Division 2A</option>
+      <option value="RICHMOND">Richmond Metro</option>
+      <option value="VIRGINIA">Virginia</option>
+      <option value="NATIONAL">National</option>
+    </select>
+  </div>
+  <div id="rWrap" class="games-wrap"><div class="notice">Loading…</div></div>
+</div>
+
+<!-- Ticker -->
+<div class="ticker"><div id="lane" class="track"></div></div>
+
+<script>
+const CSV_SCHEDULES = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=880614099&single=true&output=csv";
+const CSV_PUBLISHED = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=1511185785&single=true&output=csv";
+const LOGO_BASE = "https://tsw9rc.github.io/mancave-ticker/logos";
+
+function slug(s){return (s||"").toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");}
+function logoCandidates(team, explicit){const s=slug(team);const hy=s.replace(/_/g,"-");return [explicit, `${LOGO_BASE}/${s}.png`, `${LOGO_BASE}/${hy}.png`].filter(Boolean);}
+function cycleLogo(img){try{const list=JSON.parse(img.dataset.srcs||"[]");let i=parseInt(img.dataset.idx||"0",10);i++;if(i<list.length){img.dataset.idx=i;img.src=list[i];}else{img.replaceWith(document.createTextNode("?"));}}catch(e){img.replaceWith(document.createTextNode("?"));}}
+
+function parseCSV(t){const rows=[];let i=0,f="",row=[],q=false;while(i<t.length){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c=='"')q=true;else if(c==','){row.push(f);f="";}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);f="";if(row.length)rows.push(row);row=[];}else f+=c;}i++;}if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
+const idx=h=>{const m={};h.forEach((x,i)=>m[(x||"").trim().toLowerCase()]=i);return m;}; const get=(r,i)=>i>=0?(r[i]||"").trim():"";
+
+let SCHED=[],PUB=[];
+async function loadAll(){
+  const [sched,pub]=await Promise.all([fetch(CSV_SCHEDULES).then(r=>r.text()),fetch(CSV_PUBLISHED).then(r=>r.text())]);
+  const rs=parseCSV(sched), rp=parseCSV(pub);
+  if(rs.length){const h=idx(rs[0]);const it=h["team"],iop=h["opponent"],id=h["gamedate"]||h["date"],ih=h["homeaway"],ir=h["result"];
+    SCHED=rs.slice(1).filter(r=>get(r,it)).map(r=>({team:get(r,it),opponent:get(r,iop),date:get(r,id),ha:get(r,ih),result:get(r,ir)}));}
+  if(rp.length){const h=idx(rp[0]);const it=h["team"],iwl=h["overall_wl"],ipct=h["overall_pct"],ipf=h["pf"],ipa=h["pa"],ir=h["rank"],il=h["logo"],isrc=h["rank_source"],idelta=h["delta"],iarrow=h["arrow"];
+    PUB=rp.slice(1).filter(r=>get(r,it)).map(r=>({team:get(r,it),wl:get(r,iwl),pct:get(r,ipct),pf:get(r,ipf),pa:get(r,ipa),rank:parseInt(get(r,ir)||"")||null,logo:get(r,il),source:(get(r,isrc)||"").toUpperCase(),delta:get(r,idelta),arrow:get(r,iarrow)}));}
+}
+
+// Build Games
+function buildGames(){const teamSel=document.getElementById("gTeam");if(!teamSel.dataset.ready){const teams=[...new Set(SCHED.map(x=>x.team))];teamSel.innerHTML=teams.map(t=>`<option>${t}</option>`).join("");teamSel.dataset.ready="1";}
+const sel=teamSel.value||teamSel.options[0].value;let list=SCHED.filter(x=>x.team===sel);const wrap=document.getElementById("gameList");wrap.innerHTML="";for(const g of list){wrap.insertAdjacentHTML("beforeend",`
+<div class="gcard"><div class="gdate">${g.date}</div>
+<div class="gmid"><div class="badge"><img data-srcs='${JSON.stringify(logoCandidates(g.team))}' data-idx="0" data-fallback="${g.team}" src="${logoCandidates(g.team)[0]}" onerror="cycleLogo(this)"/></div>
+<div class="teams"><div class="teamname">${g.team}</div><div class="opp">${g.opponent}</div></div></div>
+<div class="ghomeaway">${g.ha||""}<div class="result">${g.result||""}</div></div></div>`);}}
+
+// Build Standings
+function buildStandings(){const TB=document.getElementById("standBody");TB.innerHTML="";for(const r of PUB){TB.insertAdjacentHTML("beforeend",`
+<tr><td class="rankcell">#${r.rank||"-"}</td>
+<td><div class="teamcell"><div class="badge"><img data-srcs='${JSON.stringify(logoCandidates(r.team))}' data-idx="0" data-fallback="${r.team}" src="${logoCandidates(r.team)[0]}" onerror="cycleLogo(this)"/></div>${r.team}</div></td>
+<td>${r.wl||""}</td><td>${r.pct||""}</td><td>${r.pf||""}</td><td>${r.pa||""}</td>
+<td><span class="pill">${r.arrow||""} ${r.delta||""}</span></td></tr>`);}}
+
+// Build Rankings
+function buildRankings(){const WR=document.getElementById("rWrap");WR.innerHTML="";for(const r of PUB){WR.insertAdjacentHTML("beforeend",`
+<div class="rrow"><div class="rnum">#${r.rank||"-"}</div>
+<div class="rteam"><div class="badge"><img data-srcs='${JSON.stringify(logoCandidates(r.team))}' data-idx="0" data-fallback="${r.team}" src="${logoCandidates(r.team)[0]}" onerror="cycleLogo(this)"/></div>${r.team}</div>
+<div style="text-align:right"><span class="pill">${r.arrow||""} ${r.delta||""}</span></div></div>`);}}
+
+// Build Ticker
+function buildTicker(){const lane=document.getElementById("lane");lane.innerHTML="";const doubled=PUB.concat(PUB);for(const r of doubled){lane.insertAdjacentHTML("beforeend",`
+<div class="item"><div class="logoSm"><img data-srcs='${JSON.stringify(logoCandidates(r.team))}' data-idx="0" data-fallback="${r.team}" src="${logoCandidates(r.team)[0]}" onerror="cycleLogo(this)"/></div>
+<div><div class="iTitle">#${r.rank||"-"} ${r.team}</div><div class="iMeta">W-L ${r.wl||""} • PF ${r.pf||""} / PA ${r.pa||""}</div></div></div>`);}}
+
+// Tabs
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");document.querySelectorAll(".main").forEach(m=>m.classList.remove("active"));document.getElementById(t.dataset.tab).classList.add("active");}));
+
+(async()=>{await loadAll();buildGames();buildStandings();buildRankings();buildTicker();})();
+</script>
+</body>
+</html>
