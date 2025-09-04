@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ManCave Sports • Pro (Dark v2.1)</title>
+<style>
+:root{--bg:#090e13;--panel:#0f141b;--fg:#e7edf4;--muted:#9fb0bf;--border:rgba(255,255,255,.09);
+--accent:#1f6feb;--good:#22c55e;--bad:#ef4444;--neutral:#cbd5e1;--warn:#facc15;--glass:rgba(18,24,32,.55);
+--shadow:0 12px 30px rgba(0,0,0,.35);--radius:16px;--radius-lg:20px;--tickerH:86px;}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+a{color:inherit;text-decoration:none}
+.nav{height:64px;background:#0b1117;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.3px;font-size:18px}
+.brand .dot{width:11px;height:11px;border-radius:8px;background:var(--accent)}
+.tabs{display:flex;gap:8px;margin-left:8px}.tab{padding:10px 16px;border-radius:12px;color:var(--muted);font-weight:800;cursor:pointer}
+.tab.active{background:rgba(255,255,255,.07);color:var(--fg)}
+.flex-spacer{flex:1}.controls{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}.controls input[type="range"]{accent-color:var(--accent)}
+.main{min-height:calc(100% - var(--tickerH) - 64px);padding:18px;display:none}.main.active{display:block}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+.header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.header input,.header select{background:#0d141b;border:1px solid var(--border);color:var(--fg);padding:8px;border-radius:10px}
+.notice{color:#cbd5e1;font-size:13px;padding:16px;text-align:center}
+.grid-games{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;padding:12px}
+.game-card{border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative}
+.tint{position:absolute;inset:0;opacity:.18}
+.game-top{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.game-body{display:grid;grid-template-columns:1fr 100px 1fr;align-items:center;gap:10px;padding:14px 16px}
+.team{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px}
+.badge{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid var(--border);overflow:hidden}
+.badge img{width:100%;height:100%;object-fit:contain}
+.score{text-align:center;font-weight:900;font-size:18px}.meta{text-align:center;color:var(--muted);font-size:12px;line-height:1.2}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px 12px;border-bottom:1px solid var(--border)}
+.table th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.3px}.table tr:last-child td{border-bottom:none}
+.teamcell{display:flex;align-items:center;gap:10px;font-weight:800}
+.rank-group{margin:12px 12px 26px}.rank-title{text-align:center;font-weight:1000;font-size:20px;letter-spacing:.6px;margin:6px 0 10px}
+.rank-row{display:grid;grid-template-columns:70px 1fr 160px;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));margin-bottom:10px}
+.rank-num{font-weight:1000;font-size:20px;opacity:.95;text-align:center}
+.rank-team{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.2px}
+.pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 10px;font-size:12px;border:1px solid var(--border);background:rgba(255,255,255,.06)}
+.pill.up{color:#10b981}.pill.down{color:#ef4444}.pill.same{color:#e5e7eb}
+.compare{padding:12px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border)}
+.comp-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}.comp-card{border:1px solid var(--border);border-radius:12px;padding:12px}
+.ticker{position:fixed;left:0;right:0;bottom:0;height:var(--tickerH);display:flex;align-items:center;background:var(--glass);backdrop-filter:blur(12px);border-top:1px solid var(--border);overflow:hidden}
+.track{display:flex;align-items:center;gap:26px;white-space:nowrap;will-change:transform;padding:0 18px}
+.item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03))}
+.logoSm{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.08);display:grid;place-items:center;overflow:hidden}
+.logoSm img{width:100%;height:100%;object-fit:contain}.logoSm span{font-size:11px}
+.iTitle{font-weight:800}.iMeta{color:var(--muted);font-size:13px}
+@keyframes scroll{from{transform:translateX(0)} to{transform:translateX(-50%)}}.scrolling{animation:scroll var(--speed) linear infinite}
+</style></head><body>
+<div class="nav"><div class="brand"><div class="dot"></div> ManCave Sports</div>
+<div class="tabs"><div class="tab active" data-tab="games">Games</div><div class="tab" data-tab="standings">Standings</div><div class="tab" data-tab="rankings">Rankings</div></div>
+<div class="flex-spacer"></div><div class="controls"><span>Ticker speed</span><input id="spd" type="range" min="0.5" max="3" step="0.1" value="1.2"/></div></div>
+
+<div id="games" class="main active panel"><div class="header"><input id="gSearch" placeholder="Search teams or opponent"><select id="gSort"><option value="date-asc">Date ↑</option><option value="date-desc">Date ↓</option><option value="team-az">Team A→Z</option></select></div><div id="gamesGrid" class="grid-games"><div class="notice">Loading…</div></div></div>
+
+<div id="standings" class="main panel"><div class="header"><input id="sSearch" placeholder="Search team"><select id="sSort"><option value="rank-asc">Rank ↑</option><option value="rank-desc">Rank ↓</option><option value="team-az">Team A→Z</option><option value="pct-desc">PCT ↓</option><option value="pf-desc">PF ↓</option><option value="pa-asc">PA ↑</option></select></div>
+<div><table class="table"><thead><tr><th>Team</th><th>W-L</th><th>PCT</th><th>PF</th><th>PA</th><th>Rank</th></tr></thead><tbody id="standBody"><tr><td colspan="6" class="notice">Loading…</td></tr></tbody></table></div>
+<div class="compare"><select id="cmpA"></select><select id="cmpB"></select><button id="cmpBtn">Compare</button></div><div id="cmpGrid" class="comp-cards"></div></div>
+
+<div id="rankings" class="main panel"><div class="header"><input id="rSearch" placeholder="Search team"><select id="rGroup"><option value="ALL">All Groups</option><option value="JAMES_RIVER">James River District</option><option value="DIV2A">Virginia Division 2A</option><option value="RICHMOND">Richmond Metro</option><option value="VIRGINIA">Virginia</option><option value="NATIONAL">National</option></select></div>
+<div id="rankWrap" style="padding:10px"><div class="notice">Loading…</div></div></div>
+
+<div class="ticker"><div id="lane" class="track"></div></div>
+
+<script>
+const CSV_SCHEDULES = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=880614099&single=true&output=csv';
+const CSV_PUBLISHED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRH5rLrk8P5yASsNqow9o0qqgP8XQ09vB1UzarN8CJXZIDBKZ72zq-fqWUUowgj-Q_PAt3ujib-idmF/pub?gid=1511185785&single=true&output=csv';
+const LOGO_BASE = 'https://tsw9rc.github.io/mancave-ticker/assets/logos';  // fallback folder
+function slug(s){return (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');}
+function parseCSV(t){const rows=[];let i=0,f="",row=[],q=false;while(i<t.length){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c=='"')q=true;else if(c==','){row.push(f);f="";}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);f="";if(row.length)rows.push(row);row=[];}else f+=c;}i++;}if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
+const idx=h=>{const m={};h.forEach((x,i)=>m[(x||'').trim().toLowerCase()]=i);return m;};const get=(r,i)=>i>=0?(r[i]||'').trim():'';
+const fmtDate=s=>{if(!s)return'';if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;const d=new Date(s);if(isNaN(d))return s;const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${da}`;};
+const el=h=>{const d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild;};
+const logoHTML=(url,fb)=>url?`<img src="${url}" alt="">`:`<span>${(fb||'?')[0]}</span>`;
+
+let SCHED=[],PUB=[],TEAM_LOGO={},TEAM_PRI={},TEAM_SEC={};
+async function loadAll(){
+  const [sched,pub]=await Promise.all([fetch(CSV_SCHEDULES,{cache:'no-store'}).then(r=>r.text()),fetch(CSV_PUBLISHED,{cache:'no-store'}).then(r=>r.text())]);
+  const rs=parseCSV(sched), rp=parseCSV(pub);
+  if(rs.length){const h=idx(rs[0]);const it=h['team'],iop=h['opponent']||h['opponent '],id=h['gamedate']||h['date'],ih=h['homeaway']||h['homeaway '],ir=h['result']||h['result '],il=h['logo']||-1;
+    SCHED=rs.slice(1).filter(r=>get(r,it)).map(r=>({team:get(r,it),opponent:get(r,iop),date:fmtDate(get(r,id)),ha:get(r,ih),result:get(r,ir),logo:get(r,il)}));}
+  if(rp.length){const h=idx(rp[0]);const it=h['team'],iwl=h['overall_wl']||h['region_wl'],ipct=h['overall_pct'],ipf=h['pf'],ipa=h['pa'],ir=h['rank'],il=h['logo'],isrc=h['rank_source'],idelta=h['delta'],iarrow=h['arrow'],ipri=h['primaryhex'],isec=h['secondaryhex'];
+    PUB=rp.slice(1).filter(r=>get(r,it)).map(r=>({team:get(r,it),wl:get(r,iwl),pct:get(r,ipct),pf:get(r,ipf),pa:get(r,ipa),rank:parseInt(get(r,ir)||'')||null,logo:get(r,il),source:(get(r,isrc)||'').toUpperCase(),delta:get(r,idelta),arrow:get(r,iarrow),pri:get(r,ipri),sec:get(r,isec)}));}
+  TEAM_LOGO=Object.fromEntries(PUB.map(x=>[x.team.toLowerCase(),x.logo]).filter(x=>x[1]));
+  TEAM_PRI=Object.fromEntries(PUB.map(x=>[x.team.toLowerCase(),x.pri]).filter(x=>x[1]));
+  TEAM_SEC=Object.fromEntries(PUB.map(x=>[x.team.toLowerCase(),x.sec]).filter(x=>x[1]));
+}
+
+function logoUrl(team, explicit){ if(explicit) return explicit; const s=slug(team); return `${LOGO_BASE}/${s}.png`; }
+
+function buildGames(){
+  const q=document.getElementById('gSearch').value.trim().toLowerCase();
+  const sort=document.getElementById('gSort').value;
+  let list=SCHED.slice();
+  if(q)list=list.filter(x=>(x.team+' '+x.opponent).toLowerCase().includes(q));
+  list.sort((a,b)=>{if(sort==='date-desc')return a.date>b.date?-1:a.date<b.date?1:0;if(sort==='team-az')return a.team.localeCompare(b.team);return a.date<b.date?-1:a.date>b.date?1:0;});
+  const G=document.getElementById('gamesGrid');G.innerHTML='';if(!list.length){G.innerHTML='<div class="notice">No games found.</div>';return;}
+  for(const g of list){const l=logoUrl(g.team, g.logo||TEAM_LOGO[g.team.toLowerCase()]); const pri = TEAM_PRI[g.team.toLowerCase()]||'#ffffff', sec=TEAM_SEC[g.team.toLowerCase()]||'#000000';
+    const card=el(`<div class="game-card">
+      <div class="tint" style="background:linear-gradient(90deg, ${pri} 0%, ${sec} 100%);"></div>
+      <div class="game-top"><div>${g.date}</div><div>${g.ha||''}</div></div>
+      <div class="game-body">
+        <div class="team"><div class="badge">${logoHTML(l,g.team)}</div><div>${g.team}</div></div>
+        <div class="meta">${g.result||''}</div>
+        <div class="team" style="justify-self:end"><div>${g.opponent}</div></div>
+      </div>
+    </div>`);
+    G.appendChild(card);
+  }
+}
+
+function buildStandings(){
+  const q=document.getElementById('sSearch').value.trim().toLowerCase();
+  const sort=document.getElementById('sSort').value;let list=PUB.slice();
+  if(q)list=list.filter(x=>x.team.toLowerCase().includes(q));
+  list.sort((a,b)=>{if(sort==='rank-desc')return (a.rank??999)-(b.rank??999)<0?1:-1;if(sort==='team-az')return a.team.localeCompare(b.team);
+    if(sort==='pct-desc')return parseFloat(b.pct||0)-parseFloat(a.pct||0);if(sort==='pf-desc')return (parseInt(b.pf||0)-parseInt(a.pf||0));
+    if(sort==='pa-asc')return (parseInt(a.pa||0)-parseInt(b.pa||0));return (a.rank??999)-(b.rank??999);});
+  const TB=document.getElementById('standBody');TB.innerHTML='';if(!list.length){TB.innerHTML='<tr><td colspan="6" class="notice">No standings.</td></tr>';return;}
+  for(const r of list){const l=logoUrl(r.team, r.logo);TB.appendChild(el(`<tr>
+    <td><div class="teamcell"><div class="badge">${logoHTML(l,r.team)}</div>${r.team}</div></td>
+    <td>${r.wl||''}</td><td>${r.pct||''}</td><td>${r.pf||''}</td><td>${r.pa||''}</td><td>${r.rank??''}</td></tr>`));}
+  const teams=list.map(x=>x.team);const selA=document.getElementById('cmpA'),selB=document.getElementById('cmpB');selA.innerHTML=teams.map(t=>`<option>${t}</option>`).join('');selB.innerHTML=selA.innerHTML;
+}
+document.getElementById('cmpBtn').addEventListener('click',()=>{const a=document.getElementById('cmpA').value,b=document.getElementById('cmpB').value;
+  const A=PUB.find(x=>x.team===a),B=PUB.find(x=>x.team===b);const G=document.getElementById('cmpGrid');G.innerHTML='';if(!A||!B)return;
+  const ca=t=>`<div class="comp-card"><div style="display:flex;align-items:center;gap:10px;font-weight:900;margin-bottom:6px">
+  <div class="badge">${logoHTML(logoUrl(t.team,t.logo),t.team)}</div><div>${t.team}</div></div>
+  <div>Rank: <b>${t.rank??'-'}</b></div><div>W-L: <b>${t.wl||'-'}</b> • PCT: <b>${t.pct||'-'}</b></div><div>PF: <b>${t.pf||'-'}</b> • PA: <b>${t.pa||'-'}</b></div></div>`;
+  G.appendChild(el(ca(A)));G.appendChild(el(ca(B)));});
+
+const GROUP_NAMES={JAMES_RIVER:'James River District',DIV2A:'Virginia Division 2A',RICHMOND:'Richmond Metro',VIRGINIA:'Virginia',NATIONAL:'National'};
+
+function buildRankings(){
+  const q=document.getElementById('rSearch').value.trim().toLowerCase();const group=document.getElementById('rGroup').value;
+  const WR=document.getElementById('rankWrap');WR.innerHTML='';const groups=['JAMES_RIVER','DIV2A','RICHMOND','VIRGINIA','NATIONAL'];const data={};for(const g of groups)data[g]=[];
+  for(const r of PUB){if(!r.source)continue;if(group!=='ALL'&&r.source!==group)continue;if(q&&!r.team.toLowerCase().includes(q))continue; if(!data[r.source])data[r.source]=[]; data[r.source].push(r);}
+  let any=false;for(const g of groups){const arr=(data[g]||[]).slice().sort((a,b)=>(a.rank??999)-(b.rank??999));if(!arr.length)continue;any=true;
+    const cont=el('<div class="rank-group"></div>');cont.appendChild(el(`<div class="rank-title">${GROUP_NAMES[g]||g}</div>`));
+    for(const r of arr){let delta=parseInt((r.delta||'').replace(/[^-\d]/g,'')); if(isNaN(delta)) delta=0; const arrow=(r.arrow||'').trim();
+      let prev='–'; if(r.rank!=null && delta){
+        if(arrow.includes('↑')||arrow.toLowerCase().includes('up')) prev=r.rank + Math.abs(delta);
+        else if(arrow.includes('↓')||arrow.toLowerCase().includes('down')) prev=r.rank - Math.abs(delta);
+        else prev=r.rank + delta;
+      }
+      const cls = delta<0?'up':(delta>0?'down':'same');
+      const deltaText = delta===0?'–':Math.abs(delta);
+      const pill=`<span class="pill ${cls}">${arrow||''} ${deltaText} <span style="opacity:.7">| prev ${prev}</span></span>`;
+      const l = logoUrl(r.team, r.logo);
+      cont.appendChild(el(`<div class="rank-row">
+        <div class="rank-num">#${r.rank??'–'}</div>
+        <div class="rank-team"><div class="badge">${logoHTML(l,r.team)}</div><div>${r.team}</div></div>
+        <div style="justify-self:end">${pill}</div>
+      </div>`));
+    }
+    WR.appendChild(cont);}
+  if(!any)WR.innerHTML='<div class="notice">No rankings available.</div>';
+}
+
+function buildTicker(){
+  const lane=document.getElementById('lane');lane.innerHTML='';const groups=['JAMES_RIVER','DIV2A','RICHMOND','VIRGINIA','NATIONAL'];const items=[];
+  for(const g of groups){const arr=PUB.filter(x=>x.source===g).slice().sort((a,b)=>(a.rank??999)-(b.rank??999));for(const r of arr)items.push({title:`${(GROUP_NAMES[g]||g).split(' ')[0]} #${r.rank??'-'} • ${r.team}`,meta:`W-L ${r.wl||'-'} • PF ${r.pf||'-'} / PA ${r.pa||'-'}`,logo:logoUrl(r.team,r.logo)});}
+  if(!items.length)return;const wrap=document.createElement('div');wrap.style.display='flex';wrap.style.alignItems='center';wrap.style.gap='26px';
+  const doubled=items.concat(items);for(const it of doubled)wrap.appendChild(el(`<div class="item"><div class="logoSm">${logoHTML(it.logo,it.title)}</div><div><div class="iTitle">${it.title}</div><div class="iMeta">${it.meta}</div></div></div>`));
+  // spacer so last item is visible
+  wrap.appendChild(el('<div style="width:200px"></div>'));
+  lane.appendChild(wrap);const slider=document.getElementById('spd');const speed=parseFloat(localStorage.getItem('tickerSpeed')||slider.value||'1.2');slider.value=speed;
+  const baseSec=Math.max(32, wrap.scrollWidth/200);document.documentElement.style.setProperty('--speed',(baseSec*speed)+'s');
+  slider.oninput=()=>{localStorage.setItem('tickerSpeed',slider.value);document.documentElement.style.setProperty('--speed',(baseSec*parseFloat(slider.value))+'s');};
+  lane.classList.remove('scrolling');void lane.offsetWidth;lane.classList.add('scrolling');
+}
+
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');
+  const id=t.getAttribute('data-tab');document.querySelectorAll('.main').forEach(m=>m.classList.remove('active'));document.getElementById(id).classList.add('active');}));
+['gSearch','gSort'].forEach(id=>document.getElementById(id).addEventListener('input',buildGames));
+['sSearch','sSort'].forEach(id=>document.getElementById(id).addEventListener('input',buildStandings));
+['rSearch','rGroup'].forEach(id=>document.getElementById(id).addEventListener('input',buildRankings));
+
+(async()=>{try{await loadAll();buildGames();buildStandings();buildRankings();buildTicker();}catch(e){console.error(e);alert('Load failed');}})();
+</script></body></html>
